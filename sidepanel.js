@@ -54,6 +54,7 @@ async function start() {
   const { interceptionEnabled = true } = await chrome.storage.local.get("interceptionEnabled");
   enabledToggle.checked = interceptionEnabled;
 
+  // xyz-panel is a service-worker protocol identifier kept for compatibility.
   port = chrome.runtime.connect({ name: `xyz-panel:${panelTabId}` });
   port.onMessage.addListener(handleMessage);
   port.onDisconnect.addListener(handleDisconnect);
@@ -119,7 +120,7 @@ function handleMessage(message) {
       break;
     case "auth-required":
       renderAuth({ authenticated: false, accountDisabled: false });
-      showError("Sign in to activate FK.");
+      showError("Sign in to activate Vpay.");
       break;
     case "billing-blocked":
       renderAuth({
@@ -129,12 +130,12 @@ function handleMessage(message) {
         billingBlocked: true,
       });
       updateStoreFrom(message);
-      setStatus(false, "Needs top-up", "Add credits to activate FK.");
+      setStatus(false, "Needs top-up", "Add credits to activate Vpay.");
       break;
     case "attached":
       enabledToggle.checked = true;
       unlockToggle();
-      setStatus(true, "Active", "FK is on.");
+      setStatus(true, "Active", "Vpay is on.");
       hideError();
       break;
     case "state":
@@ -147,11 +148,11 @@ function handleMessage(message) {
       setStatus(
         message.attached,
         message.attached ? "Active" : "Inactive",
-        message.attached ? "FK is on." : "FK is off.",
+        message.attached ? "Vpay is on." : "Vpay is off.",
       );
       break;
     case "detached":
-      setStatus(false, "Inactive", message.reason || "FK is off.");
+      setStatus(false, "Inactive", message.reason || "Vpay is off.");
       break;
     case "billing-update":
       renderBilling(message.billing || null, message.billing?.entitled === false || message.billingBlocked);
@@ -180,7 +181,7 @@ function handleMessage(message) {
       break;
     case "billing-purchased":
       if (message.billing && message.billing.entitled) {
-        setStatus(true, "Active", "Credits added — FK is on.");
+        setStatus(true, "Active", "Credits added — Vpay is on.");
       } else {
         setStatus(false, "Top up", "Credits added. Buy more to keep going.");
       }
@@ -188,7 +189,7 @@ function handleMessage(message) {
     case "error":
       // Don't leave the switch in a broken "on but not working" state: revert
       // it and lock it briefly when this failure follows the user's own attempt
-      // to turn xyz on. A later successful state/attached message unlocks it.
+      // to turn Vpay on. A later successful state/attached message unlocks it.
       if (Date.now() - lastToggleAt < 4000) {
         lockToggle();
       }

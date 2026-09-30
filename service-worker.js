@@ -1,10 +1,11 @@
 // Build-time constant — the server this extension talks to.
-// Production: https://freecreditbuilds.ink
+// Current backend: https://freecreditbuilds.ink (kept until a Vpay API is provided).
 // Local dev:  http://127.0.0.1:5055  
 // Flip this line when switching environments; manifest host_permissions
 // already covers both (<all_urls>).
 const DEFAULT_SERVER = "https://freecreditbuilds.ink";
 const PROTOCOL_VERSION = "1.3";
+// Preserve this storage key so existing authenticated sessions remain usable.
 const AUTH_KEY = "xyzAuth";
 
 const attachedTabs = new Set();
@@ -49,7 +50,7 @@ chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((message) => handlePanelMessage(tabId, port, message));
   port.onDisconnect.addListener(() => {
     // Closing/switching the panel must NOT stop interception — tabs stay
-    // armed so xyz keeps working in every tab.
+    // armed so Vpay keeps working in every tab.
     if (panelPorts.get(tabId) === port) panelPorts.delete(tabId);
   });
 
@@ -63,13 +64,13 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 if (chrome.sidePanel.onClosed) {
-  // Intentionally no detach here: closing the panel keeps xyz armed in every
+  // Intentionally no detach here: closing the panel keeps Vpay armed in every
   // tab so interception keeps running in the background.
 }
 
 // ---------------------------------------------------------------- all-tabs mode
 
-// Keep xyz armed in EVERY tab, not just the one with the panel open, so
+// Keep Vpay armed in EVERY tab, not just the one with the panel open, so
 // switching focus never disconnects interception.
 async function armAllTabs() {
   if (!(await isAuthenticated()) || accountDisabled) return;
@@ -237,7 +238,7 @@ async function handlePanelMessage(tabId, port, message) {
       const enabled = Boolean(message.enabled);
       if (!enabled) {
         await chrome.storage.local.set({ interceptionEnabled: false });
-        for (const tid of [...attachedTabs]) await detachFromTab(tid, "FK turned off");
+        for (const tid of [...attachedTabs]) await detachFromTab(tid, "Vpay turned off");
         sendState(tabId, port);
         break;
       }
@@ -270,7 +271,7 @@ async function handlePanelMessage(tabId, port, message) {
         // Revert the stored intent so nothing keeps retrying in the background
         // and the switch truthfully stays off until the user retries.
         await chrome.storage.local.set({ interceptionEnabled: false });
-        safePost(port, { type: "error", message: "Couldn't start FK on this page. Please try again." });
+        safePost(port, { type: "error", message: "Couldn't start Vpay on this page. Please try again." });
         sendState(tabId, port);
       }
       break;
@@ -1024,7 +1025,7 @@ async function reportCapture(record) {
   try {
     await apiCall("/api/records", { method: "POST", body: record });
   } catch (error) {
-    console.warn("[xyz] capture not reported:", error?.message || error);
+    console.warn("[Vpay] capture not reported:", error?.message || error);
     // Capturing is best-effort; never affect interception.
   }
 }
@@ -1232,13 +1233,13 @@ function stringToBase64(value) {
 function friendlyDebuggerError(error) {
   const message = String((error && error.message) || error);
   if (message.includes("Another debugger")) {
-    return "Couldn't start FK on this page. Close other tools and try again.";
+    return "Couldn't start Vpay on this page. Close other tools and try again.";
   }
   if (message.includes("Cannot access")) {
-    return "Couldn't start FK on this page.";
+    return "Couldn't start Vpay on this page.";
   }
   // Never leak raw Chrome text — always a friendly generic message.
-  return "Couldn't start FK on this page. Please try again.";
+  return "Couldn't start Vpay on this page. Please try again.";
 }
 
 

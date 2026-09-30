@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^node --version; npm --version; if \\(Get-Command wrangler -ErrorAction SilentlyContinue\\) \\{ wrangler --version \\} else \\{ Write-Output 'Wrangler not installed' \\}$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
