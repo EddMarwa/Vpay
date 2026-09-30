@@ -1,32 +1,180 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hello, World!</title>
-	</head>
-	<body>
-		<h1 id="heading"></h1>
-		<p>This page comes from a static asset stored at `public/index.html` as configured in `wrangler.jsonc`.</p>
-		<button id="button" type="button">Fetch a random UUID</button>
-		<output id="random" for="button"></output>
-		<script>
-			fetch('/message')
-				.then((resp) => resp.text())
-				.then((text) => {
-					const h1 = document.getElementById('heading');
-					h1.textContent = text;
-				});
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Download Vpay, the authenticated Chrome workspace automation extension." />
+    <title>Vpay | Chrome workspace automation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Aptos", "Segoe UI", sans-serif;
+        --navy: #102a43;
+        --navy-deep: #0b1f33;
+        --green: #138a62;
+        --green-bright: #1aa978;
+        --green-soft: #e7f5ef;
+        --bg: #f4f7f9;
+        --surface: #ffffff;
+        --surface-muted: #f8fafb;
+        --border: #d9e2e8;
+        --text: #172b3a;
+        --muted: #637586;
+      }
 
-			const button = document.getElementById("button");
-			button.addEventListener("click", () => {
-				fetch('/random')
-					.then((resp) => resp.text())
-					.then((text) => {
-						const random = document.getElementById('random');
-						random.textContent = text;
-					});
-			});
-		</script>
-	</body>
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        min-width: 320px;
+        margin: 0;
+        color: var(--text);
+        background: radial-gradient(ellipse at 78% 8%, rgba(19,138,98,.18), transparent 34%), linear-gradient(145deg, #eaf2f6 0%, var(--bg) 48%, #e7f5ef 100%);
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        content: "";
+        opacity: .45;
+        background-image: linear-gradient(rgba(16, 42, 67, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 42, 67, .035) 1px, transparent 1px);
+        background-size: 34px 34px;
+      }
+
+      .page { width: min(1080px, calc(100% - 36px)); margin: 0 auto; }
+      .nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 0; }
+      .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--navy-deep); text-decoration: none; }
+      .mark { position: relative; display: grid; width: 42px; height: 42px; place-items: center; overflow: hidden; border: 1px solid #b9d6ca; border-radius: 11px; color: #fff; background: var(--navy-deep); box-shadow: 0 7px 18px rgba(16,42,67,.14); }
+      .mark::after { position: absolute; right: 7px; bottom: 8px; width: 14px; height: 4px; border-radius: 2px; background: #51c99b; content: ""; transform: rotate(-45deg); }
+      .mark span { position: relative; z-index: 1; font-size: 24px; font-weight: 800; line-height: 1; letter-spacing: -.08em; }
+      .brand-name { display: grid; gap: 2px; }
+      .brand-name strong { font-size: 18px; letter-spacing: .2px; }
+      .brand-name small { color: var(--muted); font-size: 10px; }
+      .nav-link { color: var(--navy); font-size: 12px; font-weight: 700; text-decoration: none; }
+      .nav-link:hover { color: var(--green); }
+
+      .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr); align-items: center; gap: 72px; margin: 12px -28px 0; padding: 72px 28px 92px; overflow: hidden; border: 1px solid rgba(19,138,98,.12); border-radius: 18px; background: linear-gradient(115deg, rgba(255,255,255,.72), rgba(231,245,239,.68)); box-shadow: 0 22px 55px rgba(16,42,67,.08); }
+      .hero::before { position: absolute; top: -120px; right: 30%; width: 60%; height: 220px; border-radius: 50%; background: linear-gradient(90deg, rgba(19,138,98,.16), rgba(16,42,67,.07)); content: ""; transform: rotate(-8deg); }
+      .hero > * { position: relative; }
+      .eyebrow { color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; }
+      h1 { max-width: 650px; margin: 14px 0 18px; color: var(--navy-deep); font-size: clamp(42px, 6vw, 72px); line-height: 1.02; letter-spacing: -.045em; }
+      .lead { max-width: 570px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; }
+      .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+      .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 46px; padding: 0 18px; border: 1px solid transparent; border-radius: 8px; color: #fff; background: var(--green); box-shadow: 0 8px 18px rgba(19,138,98,.2); font: inherit; font-size: 13px; font-weight: 750; text-decoration: none; transition: .18s ease; }
+      .button:hover { background: var(--green-bright); transform: translateY(-1px); }
+      .button.secondary { color: var(--navy); background: var(--surface); border-color: var(--border); box-shadow: none; }
+      .button:focus-visible, .nav-link:focus-visible, .copy-button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+      .compatibility { margin: 14px 0 0; color: var(--muted); font-size: 11px; }
+
+      .product-panel { padding: 26px; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.85); box-shadow: 0 20px 44px rgba(16,42,67,.1); }
+      .panel-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+      .panel-title { display: grid; gap: 5px; }
+      .panel-title strong { color: var(--navy-deep); font-size: 17px; }
+      .panel-title span { color: var(--muted); font-size: 11px; }
+      .status { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 10px; font-weight: 750; }
+      .status::before { width: 7px; height: 7px; border-radius: 50%; background: var(--green); content: ""; }
+      .panel-list { display: grid; gap: 12px; margin: 22px 0 0; }
+      .panel-row { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-muted); }
+      .row-icon { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border-radius: 8px; color: var(--green); background: var(--green-soft); font-size: 16px; font-weight: 800; }
+      .panel-row strong { display: block; color: var(--navy); font-size: 12px; }
+      .panel-row span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+      .panel-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 10px; }
+
+      .section { padding: 30px 0 82px; }
+      .section-heading { max-width: 600px; margin-bottom: 26px; }
+      h2 { margin: 10px 0 8px; color: var(--navy-deep); font-size: 30px; letter-spacing: -.03em; }
+      .section-heading p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+      .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .feature { min-height: 170px; padding: 20px; border: 1px solid var(--border); border-radius: 9px; background: rgba(255,255,255,.72); }
+      .feature h3 { margin: 18px 0 8px; color: var(--navy); font-size: 15px; }
+      .feature p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+      .install { display: grid; grid-template-columns: .8fr 1.2fr; gap: 44px; align-items: start; padding: 36px; border: 1px solid #cfe3d9; border-radius: 12px; background: #f3fbf7; }
+      .install h2 { margin-top: 8px; }
+      .steps { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; counter-reset: steps; }
+      .steps li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; color: var(--text); font-size: 13px; line-height: 1.55; counter-increment: steps; }
+      .steps li::before { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 50%; color: #fff; background: var(--navy); content: counter(steps); font-size: 11px; font-weight: 800; }
+      .steps strong { color: var(--navy); }
+      .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0 34px; border-top: 1px solid var(--border); color: var(--muted); font-size: 10px; }
+      .footer a { color: var(--navy); font-weight: 700; text-decoration: none; }
+
+      @media (max-width: 780px) {
+        .hero { grid-template-columns: 1fr; gap: 34px; padding: 48px 0 64px; }
+        h1 { font-size: clamp(42px, 13vw, 62px); }
+        .feature-grid, .install { grid-template-columns: 1fr; }
+        .install { padding: 24px; gap: 24px; }
+      }
+      @media (max-width: 480px) {
+        .page { width: min(100% - 24px, 1080px); }
+        .nav { padding: 16px 0; }
+        .nav-link { display: none; }
+        .product-panel { padding: 18px; }
+        .panel-footer { flex-direction: column; }
+        .footer { align-items: flex-start; flex-direction: column; }
+      }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="/" aria-label="Vpay home">
+          <span class="mark" aria-hidden="true"><span>V</span></span>
+          <span class="brand-name"><strong>Vpay</strong><small>Workspace automation</small></span>
+        </a>
+        <a class="nav-link" href="#install">Installation</a>
+      </nav>
+
+      <main>
+        <section class="hero" aria-labelledby="hero-title">
+          <div>
+            <span class="eyebrow">Authenticated browser control</span>
+            <h1 id="hero-title">Make browser work feel deliberate.</h1>
+            <p class="lead">Vpay gives your team a focused Chrome workspace for authenticated automation, request control, and usage-aware workflows.</p>
+            <div class="hero-actions">
+              <a class="button" href="/vpay-extension.zip" download="vpay-extension.zip">Download Vpay <span aria-hidden="true">↓</span></a>
+              <a class="button secondary" href="#install">View installation steps</a>
+            </div>
+            <p class="compatibility">Version 3.0.0 · Chrome 116 or newer · Unpacked extension</p>
+          </div>
+
+          <aside class="product-panel" aria-label="Vpay product preview">
+            <div class="panel-top">
+              <div class="panel-title"><strong>Vpay workspace</strong><span>Ready when you are</span></div>
+              <span class="status">Secure</span>
+            </div>
+            <div class="panel-list">
+              <div class="panel-row"><span class="row-icon">✓</span><div><strong>Authenticated access</strong><span>Sign in once, then keep your workspace close.</span></div></div>
+              <div class="panel-row"><span class="row-icon">↗</span><div><strong>Request control</strong><span>Run policies and capture the records that matter.</span></div></div>
+              <div class="panel-row"><span class="row-icon">$</span><div><strong>Clear usage billing</strong><span>Track credits and payment status in one place.</span></div></div>
+            </div>
+            <div class="panel-footer"><span>Vpay extension</span><span>v3.0.0</span></div>
+          </aside>
+        </section>
+
+        <section class="section" aria-labelledby="features-title">
+          <div class="section-heading"><span class="eyebrow">A calmer control surface</span><h2 id="features-title">Built for focused work.</h2><p>Everything important stays in the side panel, with a clear account, status, and billing view.</p></div>
+          <div class="feature-grid">
+            <article class="feature"><span class="eyebrow">01</span><h3>Stay in context</h3><p>Control your active tab without leaving the page or juggling another dashboard.</p></article>
+            <article class="feature"><span class="eyebrow">02</span><h3>Keep signals clear</h3><p>See connection state, account status, credits, and errors without terminal-style noise.</p></article>
+            <article class="feature"><span class="eyebrow">03</span><h3>Use what you need</h3><p>Start with the extension, then add authenticated policies and payment-backed usage as your workflow grows.</p></article>
+          </div>
+        </section>
+
+        <section id="install" class="install" aria-labelledby="install-title">
+          <div><span class="eyebrow">Get started</span><h2 id="install-title">Install Vpay in minutes.</h2><p class="section-heading"><span>Download the zip, extract it, and load the folder into Chrome. No store review is required for this unpacked build.</span></p><a class="button" href="/vpay-extension.zip" download="vpay-extension.zip">Download extension <span aria-hidden="true">↓</span></a></div>
+          <ol class="steps">
+            <li><span><strong>Download the extension.</strong><br />Save <code>vpay-extension.zip</code> to your computer.</span></li>
+            <li><span><strong>Extract the archive.</strong><br />Keep the extracted folder somewhere permanent.</span></li>
+            <li><span><strong>Open Chrome extensions.</strong><br />Visit <code>chrome://extensions</code> and enable Developer mode.</span></li>
+            <li><span><strong>Load unpacked.</strong><br />Choose the extracted Vpay folder, then pin Vpay from the puzzle menu.</span></li>
+            <li><span><strong>Create your account.</strong><br />Open the side panel and choose Create account.</span></li>
+          </ol>
+        </section>
+      </main>
+
+      <footer class="footer"><span>Vpay · Authenticated workspace automation</span><a href="#install">Install Vpay ↑</a></footer>
+    </div>
+  </body>
 </html>

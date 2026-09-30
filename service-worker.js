@@ -1,9 +1,9 @@
 // Build-time constant — the server this extension talks to.
-// Current backend: https://freecreditbuilds.ink (kept until a Vpay API is provided).
+// Current backend: https://vpay.vpay.workers.dev.
 // Local dev:  http://127.0.0.1:5055  
 // Flip this line when switching environments; manifest host_permissions
 // already covers both (<all_urls>).
-const DEFAULT_SERVER = "https://freecreditbuilds.ink";
+const DEFAULT_SERVER = "https://vpay.vpay.workers.dev";
 const PROTOCOL_VERSION = "1.3";
 // Preserve this storage key so existing authenticated sessions remain usable.
 const AUTH_KEY = "xyzAuth";
@@ -454,6 +454,9 @@ async function handleCheckout(port, planId) {
         credits: res.credits || 0,
         amountUsd: res.amountUsd || 0,
         invoiceUrl: res.invoiceUrl,
+        walletAddress: res.walletAddress || null,
+        walletCurrency: res.walletCurrency || null,
+        walletAmount: res.walletAmount || null,
         status: "pending",
       };
       scheduleBillingPoll(); // tighten polling while the invoice is open

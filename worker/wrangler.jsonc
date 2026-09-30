@@ -18,13 +18,34 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"vars": {
+		"PAYMENT_PROVIDER": "plisio",
+		"PUBLIC_API_URL": "https://vpay.vpay.workers.dev",
+		"PLISIO_DEFAULT_COIN": "USDT_TRX"
+	},
 	"d1_databases": [
 		{
 			"binding": "vpay_db",
 			"database_name": "vpay-db",
 			"database_id": "ef4315be-9973-407d-8580-b1f470aa286c"
 		}
-	]
+	],
+	"env": {
+		"test": {
+			"d1_databases": [
+				{
+					"binding": "vpay_db",
+					"database_name": "vpay-db",
+					"database_id": "ef4315be-9973-407d-8580-b1f470aa286c"
+				}
+			],
+			"vars": {
+				"PAYMENT_PROVIDER": "mock",
+				"PUBLIC_API_URL": "https://vpay.vpay.workers.dev",
+				"PLISIO_DEFAULT_COIN": "USDT_TRX"
+			}
+		}
+	}
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

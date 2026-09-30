@@ -24,6 +24,10 @@ const storeSub = document.querySelector("#storeSub");
 const planList = document.querySelector("#planList");
 const pendingPaymentBox = document.querySelector("#pendingPaymentBox");
 const pendingCopy = document.querySelector("#pendingPaymentBox .pending-copy");
+const walletPaymentBox = document.querySelector("#walletPaymentBox");
+const walletAddress = document.querySelector("#walletAddress");
+const walletMeta = document.querySelector("#walletMeta");
+const copyWalletButton = document.querySelector("#copyWalletButton");
 const openInvoiceButton = document.querySelector("#openInvoiceButton");
 const cancelPaymentButton = document.querySelector("#cancelPaymentButton");
 const storeNote = document.querySelector("#storeNote");
@@ -130,7 +134,7 @@ function handleMessage(message) {
         billingBlocked: true,
       });
       updateStoreFrom(message);
-      setStatus(false, "Needs top-up", "Add credits to activate Vpay.");
+      setPaymentPendingStatus("Needs top-up", "Add credits to activate Vpay.");
       break;
     case "attached":
       enabledToggle.checked = true;
@@ -150,6 +154,7 @@ function handleMessage(message) {
         message.attached ? "Active" : "Inactive",
         message.attached ? "Vpay is on." : "Vpay is off.",
       );
+      setPaymentPendingStatus();
       break;
     case "detached":
       setStatus(false, "Inactive", message.reason || "Vpay is off.");
@@ -157,6 +162,7 @@ function handleMessage(message) {
     case "billing-update":
       renderBilling(message.billing || null, message.billing?.entitled === false || message.billingBlocked);
       updateStoreFrom(message);
+      setPaymentPendingStatus();
       break;
     case "billing-checkout-created":
       store.pending = message.payment || store.pending;
@@ -209,6 +215,7 @@ function renderAuth(state) {
   }
   renderBilling(state.billing || null, state.billingBlocked || (state.billing && state.billing.entitled === false));
   updateStoreFrom(state);
+  setPaymentPendingStatus();
   if (state.accountDisabled) {
     showError("This account has been disabled by the administrator.");
   }
@@ -305,9 +312,24 @@ function renderCreditStore() {
   planList.hidden = Boolean(pending);
   if (pending) {
     pendingCopy.textContent = `Payment pending: ${pending.planName} — ${pending.credits} credits for ${usd(pending.amountUsd)}.`;
+    const hasWallet = Boolean(pending.walletAddress);
+    walletPaymentBox.hidden = !hasWallet;
+    if (hasWallet) {
+      walletAddress.value = pending.walletAddress;
+      walletMeta.textContent = `${pending.walletCurrency || "Crypto"}${pending.walletAmount ? ` · ${pending.walletAmount}` : ""}`;
+    }
   } else {
+    walletPaymentBox.hidden = true;
     renderPlanList(plans, min, provider);
   }
+}
+
+function setPaymentPendingStatus(fallbackTitle = "Inactive", fallbackDetail = "Vpay is off.") {
+  if (store.pending?.status === "pending") {
+    setStatus(false, "Awaiting payment", "Complete the payment to activate Vpay.");
+    return;
+  }
+  if (fallbackTitle !== "Inactive") setStatus(false, fallbackTitle, fallbackDetail);
 }
 
 function renderPlanList(plans, min, provider) {
@@ -350,6 +372,18 @@ function renderPlanList(plans, min, provider) {
 openInvoiceButton.addEventListener("click", () => {
   hideError();
   safeSend({ type: "billing-open-invoice" });
+});
+
+copyWalletButton.addEventListener("click", async () => {
+  if (!walletAddress.value) return;
+  try {
+    await navigator.clipboard.writeText(walletAddress.value);
+    copyWalletButton.textContent = "Copied";
+    setTimeout(() => { copyWalletButton.textContent = "Copy"; }, 1400);
+  } catch {
+    walletAddress.select();
+    showError("Could not copy the wallet address. Select it and copy manually.");
+  }
 });
 
 cancelPaymentButton.addEventListener("click", () => {

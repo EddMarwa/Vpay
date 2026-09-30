@@ -10,7 +10,8 @@
     <main class="shell">
       <header class="brand">
         <div class="mark" aria-hidden="true">
-          <img src="icons/icon48.png" alt="" />
+          <span class="logo-symbol">V</span>
+          <span class="logo-notch"></span>
         </div>
         <div>
           <h1>Vpay</h1>
@@ -80,6 +81,14 @@
             </div>
             <div id="pendingPaymentBox" class="pending-payment" hidden>
               <span class="pending-copy">Payment pending &mdash; waiting for blockchain confirmation.</span>
+              <div id="walletPaymentBox" class="wallet-payment" hidden>
+                <span class="wallet-label">Send payment to</span>
+                <div class="wallet-line">
+                  <input id="walletAddress" type="text" readonly aria-label="Payment wallet address" />
+                  <button id="copyWalletButton" type="button" class="btn ghost small">Copy</button>
+                </div>
+                <span id="walletMeta" class="wallet-meta"></span>
+              </div>
               <div class="pending-actions">
                 <button id="openInvoiceButton" type="button" class="btn primary small">Open payment page</button>
                 <button id="cancelPaymentButton" type="button" class="btn ghost small">Cancel</button>

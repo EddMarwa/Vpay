@@ -1,4 +1,7 @@
-import { login, logout, parseJson, refresh, register } from "./auth";
+import { authenticate, login, logout, parseJson, refresh, register } from "./auth";
+import { cancel, checkout, plisioCallback, purchase, status } from "./billing";
+import { getConfig, getEngine, getScript } from "./policy";
+import { createRecord, reportInterception } from "./usage";
 
 const CORS_HEADERS = {
 	"Access-Control-Allow-Headers": "Authorization, Content-Type",
@@ -29,6 +32,24 @@ export default {
 			if (url.pathname === "/api/auth/login" && request.method === "POST") return withCors(await login(env, await parseJson(request)));
 			if (url.pathname === "/api/auth/refresh" && request.method === "POST") return withCors(await refresh(env, await parseJson(request)));
 			if (url.pathname === "/api/auth/logout" && request.method === "POST") return withCors(await logout(env, await parseJson(request)));
+			if (url.pathname === "/api/billing/plisio/callback" && request.method === "POST") return withCors(await plisioCallback(env, await parseJson(request)));
+			const scriptMatch = url.pathname.match(/^\/api\/scripts\/([^/]+)$/);
+			const paymentCancelMatch = url.pathname.match(/^\/api\/billing\/payments\/([^/]+)\/cancel$/);
+			const protectedRoute = (request.method === "GET" && (url.pathname === "/api/config" || url.pathname === "/api/engine" || Boolean(scriptMatch)))
+				|| (request.method === "GET" && url.pathname === "/api/billing/status")
+				|| (request.method === "POST" && (url.pathname === "/api/interceptions" || url.pathname === "/api/records" || url.pathname === "/api/billing/checkout" || url.pathname === "/api/billing/purchase" || Boolean(paymentCancelMatch)));
+			if (!protectedRoute) return withCors(Response.json({ error: "not_found", message: "Route not found." }, { status: 404 }));
+			const user = await authenticate(request, env);
+			if (!user) return withCors(Response.json({ error: "unauthorized", message: "Sign in required." }, { status: 401 }));
+			if (url.pathname === "/api/config") return withCors(await getConfig(request, env, user));
+			if (url.pathname === "/api/engine") return withCors(await getEngine(request, env, user));
+			if (scriptMatch) return withCors(await getScript(request, env, user, decodeURIComponent(scriptMatch[1])));
+			if (url.pathname === "/api/interceptions") return withCors(await reportInterception(env, user, await parseJson(request)));
+			if (url.pathname === "/api/records") return withCors(await createRecord(env, user, await parseJson(request)));
+			if (url.pathname === "/api/billing/status") return withCors(await status(request, env, user));
+			if (url.pathname === "/api/billing/checkout") return withCors(await checkout(env, user, await parseJson(request)));
+			if (url.pathname === "/api/billing/purchase") return withCors(await purchase(env, user, await parseJson(request)));
+			if (paymentCancelMatch) return withCors(await cancel(env, user, decodeURIComponent(paymentCancelMatch[1])));
 			return withCors(Response.json({ error: "not_found", message: "Route not found." }, { status: 404 }));
 		} catch (error) {
 			return internalError(error);
