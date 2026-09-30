@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FK</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <div class="mark" aria-hidden="true">
+          <img src="icons/icon48.png" alt="" />
+        </div>
+        <div>
+          <h1>FK</h1>
+          <p>FK controls</p>
+        </div>
+      </header>
+
+      <section id="authView" class="hero-card auth-card" hidden>
+        <span class="eyebrow">ACCOUNT</span>
+        <h2 class="auth-title">Sign in</h2>
+        <label class="field">
+          <span>Email</span>
+          <input id="emailInput" type="email" autocomplete="email" placeholder="you@example.com" spellcheck="false" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="passwordInput" type="password" autocomplete="current-password" />
+        </label>
+        <label class="field">
+          <span>Invite code (optional)</span>
+          <input id="inviteInput" type="text" spellcheck="false" autocomplete="off" />
+        </label>
+        <div class="row-buttons">
+          <button id="loginButton" type="button" class="btn primary">Sign in</button>
+          <button id="registerButton" type="button" class="btn ghost">Create account</button>
+        </div>
+        <p class="hint">Sign in to continue.</p>
+      </section>
+
+      <section id="mainView" hidden>
+        <section class="hero-card">
+          <div class="account-row">
+            <div class="account-info">
+              <span class="eyebrow">ACCOUNT</span>
+              <div class="account-line">
+                <strong id="accountEmail">&mdash;</strong>
+                <span id="accountRole" class="role-badge">user</span>
+              </div>
+            </div>
+            <button id="signOutButton" type="button" class="btn ghost small">Sign out</button>
+          </div>
+          <p id="billingCard" class="billing-card" hidden>
+            <span class="billing-head">
+              <span id="billingPlan" class="billing-plan">Plan</span>
+              <span id="billingBadge" class="billing-badge" hidden>paused</span>
+            </span>
+            <span class="billing-stats">
+              <span class="billing-stat">
+                <span class="billing-label">Total activities</span>
+                <strong id="billingTotal">0</strong>
+              </span>
+              <span class="billing-stat">
+                <span class="billing-label">Balance</span>
+                <strong id="billingBalance">0</strong>
+              </span>
+              <span class="billing-stat">
+                <span class="billing-label">Expires</span>
+                <strong id="billingExpiry">&mdash;</strong>
+              </span>
+            </span>
+          </p>
+
+          <div id="creditStore" class="credit-store" hidden>
+            <div class="store-heading">
+              <span class="eyebrow">CRYPTO CREDITS</span>
+              <span id="storeSub" class="store-sub"></span>
+            </div>
+            <div id="pendingPaymentBox" class="pending-payment" hidden>
+              <span class="pending-copy">Payment pending &mdash; waiting for blockchain confirmation.</span>
+              <div class="pending-actions">
+                <button id="openInvoiceButton" type="button" class="btn primary small">Open payment page</button>
+                <button id="cancelPaymentButton" type="button" class="btn ghost small">Cancel</button>
+              </div>
+            </div>
+            <div id="planList" class="plan-list"></div>
+            <p id="storeNote" class="store-note" hidden></p>
+          </div>
+
+          <div class="status-row">
+            <div>
+              <span class="eyebrow">STATUS</span>
+              <div class="status-copy">
+                <span id="statusDot" class="status-dot"></span>
+                <strong id="statusText">Starting&hellip;</strong>
+              </div>
+            </div>
+            <label class="switch" aria-label="Toggle FK">
+              <input id="enabledToggle" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <p id="statusDetail" class="status-detail">Connecting to the current tab.</p>
+        </section>
+      </section>
+
+      <div id="errorBox" class="error-box" role="alert" hidden></div>
+
+      <footer>
+        <span class="privacy-dot"></span>
+        FK &middot; v3
+      </footer>
+    </main>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
