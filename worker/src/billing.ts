@@ -47,6 +47,17 @@ async function billingRow(env: Env, userId: string) {
   }>();
 }
 
+export function billingEntitled(entitled: number | boolean | null | undefined, expiresAt: string | null | undefined): boolean {
+  if (!entitled) return false;
+  if (!expiresAt) return true;
+
+  const normalized = expiresAt.includes("T") ? expiresAt : expiresAt.replace(" ", "T");
+  const expiresAtMs = Date.parse(normalized);
+  if (!Number.isFinite(expiresAtMs)) return true;
+
+  return expiresAtMs > Date.now();
+}
+
 function billingPayload(row: Awaited<ReturnType<typeof billingRow>>) {
   if (!row) return null;
   return {
@@ -55,7 +66,7 @@ function billingPayload(row: Awaited<ReturnType<typeof billingRow>>) {
     creditsRemaining: row.credits_remaining,
     used: row.used,
     expiresAt: row.expires_at,
-    entitled: Boolean(row.entitled) && (!row.expires_at || row.expires_at > new Date().toISOString()),
+    entitled: billingEntitled(row.entitled, row.expires_at),
   };
 }
 

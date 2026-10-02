@@ -1,5 +1,6 @@
 import { env, SELF } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
+import { billingEntitled } from "../src/billing";
 
 async function createAccount() {
   const response = await SELF.fetch("https://vpay.workers.dev/api/auth/register", {
@@ -18,6 +19,13 @@ async function createPlan() {
 }
 
 describe("billing API", () => {
+  it("treats SQLite datetime strings as valid future expirations", () => {
+    expect(billingEntitled(1, "2099-01-01 12:00:00")).toBe(true);
+    expect(billingEntitled(1, "2020-01-01 12:00:00")).toBe(false);
+    expect(billingEntitled(1, "2999-01-01T12:00:00.000Z")).toBe(true);
+    expect(billingEntitled(0, "2099-01-01 12:00:00")).toBe(false);
+  });
+
   it("returns signed status and fulfills a local mock purchase", async () => {
     const auth = await createAccount();
     const planId = await createPlan();
