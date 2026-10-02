@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "FK",
+  "short_name": "FK",
+  "version": "3.0.0",
+  "description": "Authenticated workspace automation.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "debugger",
+    "sidePanel",
+    "storage",
+    "tabs",
+    "webNavigation",
+    "offscreen",
+    "scripting",
+    "clipboardRead",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Open FK",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';",
+    "sandbox": "sandbox allow-scripts; script-src 'self' 'unsafe-eval';"
+  },
+  "sandbox": {
+    "pages": ["sandbox.html"]
+  }
+}
+

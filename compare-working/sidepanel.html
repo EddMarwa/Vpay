@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FK Local</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <div class="mark" aria-hidden="true">
+          <img src="icons/icon48.png" alt="" />
+        </div>
+        <div>
+          <h1>FK Local</h1>
+          <p>FAFSA Bypass Mode</p>
+        </div>
+      </header>
+
+      <section id="mainView">
+        <section class="hero-card">
+          <div class="account-row">
+            <div class="account-info">
+              <span class="eyebrow">ACCOUNT</span>
+              <div class="account-line">
+                <strong id="accountEmail">local@fk.local</strong>
+                <span class="role-badge">local</span>
+              </div>
+            </div>
+          </div>
+          
+          <p class="billing-card">
+            <span class="billing-head">
+              <span class="billing-plan">FAFSA Bypass</span>
+            </span>
+            <span class="billing-stats">
+              <span class="billing-stat">
+                <span class="billing-label">Captured</span>
+                <strong id="captureTotal">0</strong>
+              </span>
+              <span class="billing-stat">
+                <span class="billing-label">Blocked</span>
+                <strong id="captureMatched">0</strong>
+              </span>
+              <span class="billing-stat">
+                <span class="billing-label">Status</span>
+                <strong id="captureStatus">Ready</strong>
+              </span>
+            </span>
+          </p>
+
+          <div class="status-row">
+            <div>
+              <span class="eyebrow">STATUS</span>
+              <div class="status-copy">
+                <span id="statusDot" class="status-dot"></span>
+                <strong id="statusText">Starting...</strong>
+              </div>
+            </div>
+            <label class="switch" aria-label="Toggle FK">
+              <input id="enabledToggle" type="checkbox" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <p id="statusDetail" class="status-detail">Connecting to current tab.</p>
+
+          <div class="row-buttons" style="margin-top: 15px;">
+            <button id="exportBtn" type="button" class="btn primary small">Export Log</button>
+            <button id="clearBtn" type="button" class="btn ghost small">Clear</button>
+          </div>
+          
+          <p id="exportResult" class="store-note" style="margin-top: 10px;"></p>
+        </section>
+      </section>
+
+      <div id="errorBox" class="error-box" role="alert" hidden></div>
+
+      <footer>
+        <span class="privacy-dot"></span>
+        FK Local · FAFSA Bypass v3
+      </footer>
+    </main>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
